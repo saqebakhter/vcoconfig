@@ -11,6 +11,6 @@ Modify app.py , with your VCO IP, and Username/Password.
 
 Launch app with:
 
-python3 app.py, it will host the application http://127.0.0.1:5000
+python3 app.py, it will host the application at http://127.0.0.1:5000
 
 By default data will be retained in a sqllite3 database at in the same directory as the app.py file "database.db" that can be changed or persisted to other DB types like MySQL by modifying app.py.
