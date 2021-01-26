@@ -436,16 +436,15 @@ def initiateRestoreProfileModulePost(enterpriseId, profileId):
         restoreData = {}
 
         restoreData['data'] = restore[0]['data']['data']
+        restoreData['name'] = restore[0]['moduleName']
+
         print('restore module id: ' + str(moduleId))
         resp = vcoClient.call_api("configuration/updateConfigurationModule", {
             "enterpriseId": enterpriseId,
             "_update": restoreData,
-            "id": int(restore[0]['moduleId']),
-            "name": restore[0]['moduleName']
+            "id": int(restore[0]['moduleId'])
 
         })
-
-        print (resp)
 
     backups = []
 
