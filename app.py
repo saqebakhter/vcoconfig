@@ -1,14 +1,11 @@
-from flask import Flask, render_template, redirect, request, url_for, jsonify, session
+from flask import Flask, render_template, request
 from flask_assets import Bundle, Environment
-import requests
-from base64 import b64encode
-import json
+
 import dataset
 import vcoApi
 import os
 import urllib3
 from deepdiff import DeepDiff
-import pprint
 
 urllib3.disable_warnings()
 
@@ -25,8 +22,11 @@ css = Bundle('css/modal.css', 'css/clarity-ui.min.css', 'css/clarity-icons.min.c
 env.register('css_all', css)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
+
+####################################################################
 vcoUsername = 'super@velocloud.net'
 vcoPassword ='vcadm!n'
+####################################################################
 
 vcoClient = vcoApi.VcoRequestManager("192.168.20.15", verify_ssl=False)
 vcoClient.authenticate(vcoUsername, vcoPassword, is_operator=True)
