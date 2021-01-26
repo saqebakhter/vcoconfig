@@ -1,0 +1,50 @@
+{% extends "header.html" %}
+{% set headerTitle = '[VCO ConfigBackup] ' + enterprise['name']%}
+
+{% block body %}
+
+<!doctype html>
+<title>Edge List</title>
+<div class=page>
+<h1>Edge List</h1>
+    <table class="table">
+<tbody>
+<tr>
+<td>Edge Name</td>
+<td>ID</td>
+</tr>
+
+  {% for edge in table %}
+
+      <tr>
+          <td><a href="/enterprise/{{ enterpriseId }}/edge/{{edge['id']}}"> {{edge['name']}} </a></td>
+<td>{{edge['id']}}</td>
+</tr>
+
+
+  {% endfor %}
+</tbody>
+</table>
+<br>
+<h1>Profile List</h1>
+    <table class="table">
+<tbody>
+<tr>
+<td>Profile Name</td>
+<td>ID</td>
+</tr>
+
+  {% for profile in profiles %}
+
+      <tr>
+          <td><a href="/enterprise/{{ enterpriseId }}/profile/{{profile['id']}}"> {{profile['name']}} </a></td>
+<td>{{profile['id']}}</td>
+</tr>
+
+
+  {% endfor %}
+</tbody>
+</table>
+
+<br/>
+{% endblock %}

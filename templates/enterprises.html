@@ -1,0 +1,32 @@
+{% extends "header.html" %}
+{% set headerTitle = '[VCO ConfigBackup]' %}
+
+{% block body %}
+
+<!doctype html>
+<title>Enterprise List</title>
+<div class=page>
+  <h1>Enterprise List</h1>
+
+
+<table class="table">
+<tbody>
+<tr>
+<td>Enterprise Name</td>
+<td>ID</td>
+</tr>
+
+  {% for enterprise in table %}
+
+      <tr>
+          <td><a href="/enterprise/{{enterprise['id']}}"> {{enterprise['name']}} </a></td>
+<td>{{enterprise['id']}}</td>
+</tr>
+
+
+  {% endfor %}
+</tbody>
+</table>
+
+</div>
+{% endblock %}

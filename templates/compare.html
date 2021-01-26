@@ -1,0 +1,107 @@
+{% extends "header.html" %}
+{% set headerTitle = '[VCO ConfigBackup] ' + enterprise['name']+'/'+edgeName %}
+{% block body %}
+
+<!doctype html>
+<title>Edge Backup List</title>
+<div class=page>
+  <h1>{{ edgeName }} Current Config</h1>
+
+<div id="existingTable">
+<table class="table">
+<tbody>
+<tr>
+<td>Current Module Name</td>
+<td>Timestamp</td>
+<td>Backup</td>
+
+</tr>
+<form id="target" action="" method="post" class="form-example">
+  {% for module in modules %}
+
+    <tr>
+    <td> <b> {{module['name']}} </b></td>
+    <td>{{module['version']}}</td>
+    <td>
+{#        <a href="/enterprise/{{ enterpriseId }}/edge/{{edgeId}}/backup/{{module['id']}}"> Backup </a>#}
+
+
+          <input type="checkbox" id={{module['id']}} name={{module['id']}}>
+{#          <label for="horns">Horns</label>#}
+    </td>
+    </tr>
+
+
+  {% endfor %}
+</tbody>
+</table>
+</div>
+
+<br/>
+<br/>
+
+  <div class="form-example">
+    <label for="name">Backup Set Name: </label>
+    <input type="text" name="name" id="name" required>
+  </div>
+
+  <div class="form-example">
+    <input type="submit" id='backupButton' value="Backup">
+  </div>
+</form>
+
+<br/>
+<br/>
+
+<h2>Backed up Configs</h2>
+<div id="backedupTable">
+
+<table class="table">
+<tbody>
+<tr>
+<td><b>Module Name</b></td>
+<td><b>Timestamp</b></td>
+<td><b>Backup Set Name</b></td>
+
+<td><b>Action</b></td>
+
+</tr>
+
+
+<form id='restore-form' action="" method="post" class="form-example">
+
+
+  {% for row in backups %}
+
+    <tr>
+    <td> {{row['moduleName']}} </td>
+    <td>{{row['version']}}</td>
+    <td>{{row['backupSetName']}}</td>
+
+    <td>
+        <input type="checkbox" id={{row['id']}} name={{row['id']}}>
+    </td>
+    </tr>
+
+
+  {% endfor %}
+
+
+</tbody>
+</div>
+</table>
+<br/>
+  <div class="form-example">
+    <input type="submit" id="restoreButton" value="Restore (experimental)">
+    <input type="submit" id="compareButton" value="Compare">
+    <input type="submit" id="deleteButton" value="Delete">
+
+  </div>
+
+</form>
+
+
+<br/>
+
+</div>
+{% endblock %}
