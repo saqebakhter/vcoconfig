@@ -24,12 +24,12 @@ env.register('css_all', css)
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 ####################################################################
-vcoUsername = 'super@velocloud.net'
-vcoPassword ='vcadm!n'
+vcoUsername = 'partner@partner.com'
+vcoPassword ='Velocloud123'
 ####################################################################
 
 vcoClient = vcoApi.VcoRequestManager("192.168.20.15", verify_ssl=False)
-vcoClient.authenticate(vcoUsername, vcoPassword, is_operator=True)
+vcoClient.authenticate(vcoUsername, vcoPassword, is_operator=False)
 db = dataset.connect('sqlite:///'+dir_path+'/database.db')
 # db = dataset.connect('sqlite:///tmp/database.db')
 
@@ -39,7 +39,14 @@ print(dir_path)
 @app.route('/')
 def listEnterprises():
 
-    resp = vcoClient.call_api("network/getNetworkEnterprises", {
+
+    #enterpriseProxy/getEnterpriseProxyEnterprises
+
+    url = 'network/getNetworkEnterprises'
+
+    if vcoClient.is_operator == False:
+        url = 'enterpriseProxy/getEnterpriseProxyEnterprises'
+    resp = vcoClient.call_api(url, {
     })
 
     table = db['enterpriseList']

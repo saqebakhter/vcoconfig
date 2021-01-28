@@ -13,6 +13,7 @@ class VcoRequestManager(object):
         self._portal_url = self._root_url + "/portal/"
         self._livepull_url = self._root_url + "/livepull/liveData/"
         self._seqno = 0
+        self.is_operator = None
 
     def _get_root_url(self, hostname):
         """
@@ -27,6 +28,7 @@ class VcoRequestManager(object):
         """
         Authenticate to API - on success, a cookie is stored in the session
         """
+        self.is_operator = is_operator
         path = "/login/operatorLogin" if is_operator else "/login/enterpriseLogin"
         url = self._root_url + path
         data = { "username": username, "password": password }
