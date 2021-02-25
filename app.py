@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect,url_for
 from flask_assets import Bundle, Environment
 
 import dataset
@@ -6,6 +6,8 @@ import vcoApi
 import os
 import urllib3
 from deepdiff import DeepDiff
+import configparser
+
 
 urllib3.disable_warnings()
 
@@ -23,13 +25,22 @@ env.register('css_all', css)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-####################################################################
-vcoUsername = 'partner@partner.com'
-vcoPassword ='Velocloud123'
-####################################################################
 
-vcoClient = vcoApi.VcoRequestManager("192.168.20.15", verify_ssl=False)
-vcoClient.authenticate(vcoUsername, vcoPassword, is_operator=False)
+
+# Configuration
+config = configparser.ConfigParser()
+config.sections()
+
+config.read('config.ini')
+
+VCO_FQDN = config['DEFAULT']['VCO_FQDN']
+VCO_USERNAME = config['DEFAULT']['VCO_USERNAME']
+VCO_PASSWORD = config['DEFAULT']['VCO_PASSWORD']
+VCO_ENTERPRISE = config['DEFAULT'].getboolean('VCO_ENTERPRISE')
+
+
+vcoClient = vcoApi.VcoRequestManager(VCO_FQDN, verify_ssl=False)
+vcoClient.authenticate(VCO_USERNAME, VCO_PASSWORD, is_operator=False)
 db = dataset.connect('sqlite:///'+dir_path+'/database.db')
 # db = dataset.connect('sqlite:///tmp/database.db')
 
@@ -40,12 +51,17 @@ print(dir_path)
 def listEnterprises():
 
 
+    if VCO_ENTERPRISE:
+        return redirect( url_for('listEdges' ,enterpriseId=1) )
     #enterpriseProxy/getEnterpriseProxyEnterprises
 
     url = 'network/getNetworkEnterprises'
 
     if vcoClient.is_operator == False:
         url = 'enterpriseProxy/getEnterpriseProxyEnterprises'
+
+
+    print(url)
     resp = vcoClient.call_api(url, {
     })
 
@@ -61,9 +77,13 @@ def listEnterprises():
 
 def listEdges(enterpriseId):
 
-    resp = vcoClient.call_api("enterprise/getEnterpriseEdgeList",{
-  "enterpriseId": enterpriseId,
-    })
+    if VCO_ENTERPRISE:
+        resp = vcoClient.call_api("enterprise/getEnterpriseEdgeList",{})
+
+    else:
+        resp = vcoClient.call_api("enterprise/getEnterpriseEdgeList", {
+            "enterpriseId": enterpriseId,
+        })
 
 
 
@@ -71,9 +91,15 @@ def listEdges(enterpriseId):
     for edge in resp:
         table.upsert(dict(enterpriseId=enterpriseId, edgeId=edge['id'], edgeName=edge['name']), ['enterpriseId', 'edgeId'])
 
-    profileResp = vcoClient.call_api("enterprise/getEnterpriseConfigurationsPolicies", {
-        "enterpriseId": enterpriseId,
-    })
+
+    if VCO_ENTERPRISE:
+        profileResp = vcoClient.call_api("enterprise/getEnterpriseConfigurationsPolicies", {})
+
+    else:
+        profileResp = vcoClient.call_api("enterprise/getEnterpriseConfigurationsPolicies", {
+            "enterpriseId": enterpriseId,
+        })
+
 
     table = db['profileList']
     for profile in profileResp:
@@ -81,6 +107,10 @@ def listEdges(enterpriseId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
+
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     return render_template('edges.html', profiles=profileResp, enterpriseId=enterpriseId, table=resp, enterprise=enterprise)
 
@@ -98,7 +128,9 @@ def initiateDeleteEdgeModulePost(enterpriseId, edgeId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
-
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     for moduleId in modules:
         table = db['edgeSpecificModules']
@@ -139,7 +171,9 @@ def initiateCompareEdgeModulePost(enterpriseId, edgeId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
-
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     edgeSpecificModules = getEdgeModules(enterpriseId, edgeId)
 
@@ -178,6 +212,9 @@ def initiateRestoreEdgeModulePost(enterpriseId, edgeId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     edgeSpecificModules = getEdgeModules(enterpriseId, edgeId)
 
@@ -225,6 +262,9 @@ def initiateBackupEdgeModulePost(enterpriseId, edgeId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     edgeSpecificModules = getEdgeModules(enterpriseId, edgeId)
 
@@ -254,7 +294,9 @@ def getEdgeBackups(enterpriseId, edgeId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
-
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     table = db['edgeList']
     edge = table.find_one(enterpriseId=enterpriseId, edgeId=edgeId)
@@ -283,7 +325,9 @@ def getProfileBackups(enterpriseId, profileId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
-
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     table = db['profileList']
     profile = table.find_one(enterpriseId=enterpriseId, profileId=profileId)
@@ -326,6 +370,9 @@ def initiateBackupProfileModulePost(enterpriseId, profileId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     profileModules = getProfileModules(enterpriseId, profileId)
 
@@ -400,7 +447,9 @@ def initiateDeleteProfileModulePost(enterpriseId, profileId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
-
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     for moduleId in modules:
         table = db['profileModules']
@@ -431,6 +480,9 @@ def initiateRestoreProfileModulePost(enterpriseId, profileId):
 
     table = db['enterpriseList']
     enterprise = table.find_one(enterpriseId=enterpriseId)
+    if enterprise == None:
+        enterprise = {}
+        enterprise['name'] = 'Enterprise'
 
     profileModules = getProfileModules(enterpriseId, profileId)
 
