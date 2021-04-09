@@ -7,7 +7,7 @@ Install requirements for the script
 
 pip3 install -r requirements.txt 
 
-Modify app.py , with your VCO IP, and Username/Password.
+Modify config.ini , with your VCO IP, and Username/Password.
 
 Launch app with:
 
